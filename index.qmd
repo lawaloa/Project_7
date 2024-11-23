@@ -362,11 +362,11 @@ None
 
 # Conclusion
 
-Our analysis identified `driving_experience` (years of driving) as the strongest predictor of claim submissions, achieving an accuracy score of 77.7%. This result highlights the importance of driving experience in assessing customer risk. The model correctly classified claims and non-claims in 78 out of 100 cases.
+My analysis identified `driving_experience` (years of driving) as the strongest predictor of claim submissions, achieving an accuracy score of 77.7%. This result highlights the importance of driving experience in assessing customer risk. The model correctly classified claims and non-claims in 78 out of 100 cases.
 
 Logistic regression was used to evaluate the predictive power of individual features, and accuracy was calculated using a confusion matrix. The prominence of driving experience suggests that more experienced drivers may exhibit different risk profiles, which could guide targeted policy offerings.
 
-We recommend incorporating this insight into your risk assessment models.
+I recommend incorporating this insight into your risk assessment models.
 
 # References
 
