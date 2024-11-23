@@ -69,7 +69,7 @@ They have supplied you with their customer data as a csv file called `car_insura
 
 # Data Source
 
-Data: The primary data used for this analysis is the car_insurance.csv. See @tbl-Car for the column names and descriptions.
+Data: The primary data used for this analysis is the car_insurance.csv, which can be downloaded [here](https://github.com/lawaloa/Project_7/blob/main/car_insurance.csv){target="_blank"}. See @tbl-Car for the column names and descriptions.
 
 # Tools
 
