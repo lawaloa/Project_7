@@ -1,0 +1,380 @@
+---
+title: "Project 7: Modeling Car Insurance Claims Outcome"
+title-block-banner: "SKYBLUE2.jpeg"
+author:
+  - name:  "Lawal's Project"
+    affiliation: "Associate Data Science Course in Python by DataCamp Inc"
+date: "2024-11-23"
+toc: true
+number-sections: true
+highlight-style: pygments
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+  pdf:
+    geometry:
+      - top=30mm
+      - left=20mm
+  docx: default
+execute:
+  warning: false
+  echo: true   
+  eval: true  
+  output: true 
+  error: false   
+  cache: false
+  include_metadata: false
+jupyter: python3
+---
+
+![car](car.jpg)
+
+# Project Overview
+
+Insurance companies invest a lot of [time and money](https://www.accenture.com/_acnmedia/pdf-84/accenture-machine-leaning-insurance.pdf){target="_blank"} into optimizing their pricing and accurately estimating the likelihood that customers will make a claim. In many countries insurance it is a legal requirement to have car insurance in order to drive a vehicle on public roads, so the market is very large!
+
+Knowing all of this, On the Road car insurance have requested your services in building a model to predict whether a customer will make a claim on their insurance during the policy period. As they have very little expertise and infrastructure for deploying and monitoring machine learning models, they've asked you to identify the single feature that results in the best performing model, as measured by accuracy, so they can start with a simple model in production.
+
+They have supplied you with their customer data as a csv file called `car_insurance.csv`, along with a table detailing the column names and descriptions below.
+
+| Column | Description |
+|--------|-------------|
+| `id` | Unique client identifier |
+| `age` | Client's age: <br> <ul><li>`0`: 16-25</li><li>`1`: 26-39</li><li>`2`: 40-64</li><li>`3`: 65+</li></ul> |
+| `gender` | Client's gender: <br> <ul><li>`0`: Female</li><li>`1`: Male</li></ul> |
+| `driving_experience` | Years the client has been driving: <br> <ul><li>`0`: 0-9</li><li>`1`: 10-19</li><li>`2`: 20-29</li><li>`3`: 30+</li></ul> |
+| `education` | Client's level of education: <br> <ul><li>`0`: No education</li><li>`1`: High school</li><li>`2`: University</li></ul> |
+| `income` | Client's income level: <br> <ul><li>`0`: Poverty</li><li>`1`: Working class</li><li>`2`: Middle class</li><li>`3`: Upper class</li></ul> |
+| `credit_score` | Client's credit score (between zero and one) |
+| `vehicle_ownership` | Client's vehicle ownership status: <br><ul><li>`0`: Does not own their vehilce (paying off finance)</li><li>`1`: Owns their vehicle</li></ul> |
+| `vehcile_year` | Year of vehicle registration: <br><ul><li>`0`: Before 2015</li><li>`1`: 2015 or later</li></ul> |
+| `married` | Client's marital status: <br><ul><li>`0`: Not married</li><li>`1`: Married</li></ul> |
+| `children` | Client's number of children |
+| `postal_code` | Client's postal code | 
+| `annual_mileage` | Number of miles driven by the client each year |
+| `vehicle_type` | Type of car: <br> <ul><li>`0`: Sedan</li><li>`1`: Sports car</li></ul> |
+| `speeding_violations` | Total number of speeding violations received by the client | 
+| `duis` | Number of times the client has been caught driving under the influence of alcohol |
+| `past_accidents` | Total number of previous accidents the client has been involved in |
+| `outcome` | Whether the client made a claim on their car insurance (response variable): <br><ul><li>`0`: No claim</li><li>`1`: Made a claim</li></ul> |
+
+: Customer data {#tbl-Car}
+
+# Task
+
+- Identify the single feature of the data that is the best predictor of whether a customer will put in a claim (the `"outcome"` column), excluding the `"id"` column.
+
+- Store as a DataFrame called `best_feature_df`, containing columns named `"best_feature"` and `"best_accuracy"` with the name of the feature with the highest accuracy, and the respective accuracy score.
+
+# Data Source
+
+Data: The primary data used for this analysis is the car_insurance.csv. See @tbl-Car for the column names and descriptions.
+
+# Tools
+
+Jupyter lab
+
+# Methodology: Steps/Explanations
+
+## The necessary libraries was imported, which were `Pandas` and `logit` from `statsmodels.formula.api` {.unlisted .unnumbered}
+
+## Reading in and exploring the dataset, including imputation of missing values {.unlisted .unnumbered}
+
+- The Original dataset was loaded, named `car`.
+- The first  function, `explore`, was designed to help analyze and clean a dataset by providing a detailed overview of its structure and content, and it also optionally imputes missing values. Here's a step-by-step explanation:
+
+1. **Function creation and its arguments**: `data`, the DataFrame to analyze; `head_rows`, the number of rows to display from the start of the DataFrame (default: 5); `group_by_col`, the column used to group data for imputing missing values (default: None); `cols_to_impute`, the list of columns where missing values will be filled with the group mean (default: None).
+
+`def explore(data, head_rows=5, group_by_col=None, cols_to_impute=None):`
+
+2. **Function Task 1**: Prints information about the DataFrame, such as:
+
+- Number of rows and columns.
+- Data types of each column.
+- Non-null counts for each column.
+
+```
+print("\n--- DataFrame Info ---\n")
+data.info()
+```
+
+3. **Function Task 2**: Displays summary statistics for all columns, including:
+
+- For numerical data: Mean, standard deviation, min, max, and percentiles.
+- For categorical data: Frequency counts (mode) and unique counts.
+
+```
+print("\n--- Summary Statistics ---\n")
+print(data.describe(include='all'))
+```   
+
+3. **Function Task 3**: Displays the first head_rows rows (default: 5) of the DataFrame to give a preview of the data.
+
+```
+print(f"\n--- First {head_rows} Rows ---\n")
+print(data.head(head_rows))
+```
+
+4. **Function Task 4**: Iterates over each column and prints the unique values present in it. Helps understand the distinct data points for each column.
+
+```
+print("\n--- Unique Values ---\n")
+for col in data.columns:
+    print(f"{col}: {data[col].unique()}")
+```
+
+5. **Function Task 5**: Fills missing values (`NaN`) in the specified columns (`cols_to_impute`) by grouping data based on `group_by_col` and calculating the mean for each group.
+
+- Steps:
+  + Groups the data by the column specified in `group_by_col`.
+  + Calculates the mean for the columns listed in `cols_to_impute` for each group.
+  + Fills missing values in each column by mapping the group means to the corresponding rows.
+
+- Error Handling:
+  + Ensures the function doesn't crash if the specified column is not found or if an error occurs during imputation.
+
+```
+if group_by_col and cols_to_impute:
+    print("\n--- Imputing Missing Values ---\n")
+    try:
+        group_means = data.groupby(group_by_col)[cols_to_impute].mean().to_dict()
+        for col in cols_to_impute:
+            if col in data.columns:
+                print(f"Imputing missing values in '{col}' based on group means of '{group_by_col}'")
+                data[col] = data[col].fillna(data[group_by_col].map(group_means[col]))
+            else:
+                print(f"Column '{col}' not found in the dataset.")
+    except Exception as e:
+        print(f"Error while imputing missing values: {e}")
+``` 
+
+6. **Function Task 6**: After the imputation, checks and prints the count of missing values in each column to verify if gaps were successfully filled.
+
+```
+print("\n--- Any missing values again ? ---\n")
+print(data.isna().sum())
+```
+
+## Finding the best performing model, with the highest accuracy. {.unlisted .unnumbered}
+
+- The second function, `best_logmodel`, was designed to identify the single best feature in a dataset for predicting a binary outcome using logistic regression with the statsmodels library. Here's a detailed explanation:
+
+1. **Function creation and its arguments**: `data`, the input dataset for modeling as a pandas DataFrame; `outcome_column`, the target column (dependent variable) representing the outcome being predicted (default: 'outcome'); `id_column`, a unique identifier column to exclude from the analysis (default: 'id').
+
+`def best_logmodel(data, outcome_column='outcome', id_column='id'):`
+
+2. **Function Task**: Creates a new DataFrame (`data1`) by removing the `id_column` (not predictive) and the `outcome_column` (target variable) from the list of features. The remaining columns are treated as potential predictors.
+
+`data1 = data.drop(columns=[id_column, outcome_column])`
+
+3. **Initialize Tracking Variables**: `best_feature`, placeholder for the name of the feature with the highest accuracy and `best_accuracy`, tracks the best accuracy score encountered during the iteration.
+ 
+```
+best_feature = None
+best_accuracy = 0
+```
+
+4. **Loop Through Each Feature**: Iterates through all the columns (features) in data1 to evaluate their predictive power for the `outcome_column`.
+
+`for col in data1.columns:`
+
+5. **Create the Logistic Regression Formula**: Constructs a formula for logistic regression in the form `"outcome_column ~ feature_column"`.
+
+`formula = f"{outcome_column} ~ {col}"`
+
+6. **Fit Logistic Regression Model**:  Fits a logistic regression model for the current feature using the `logit` function from `statsmodels`. The `disp=False argument suppresses output during model fitting.
+
+`model = logit(formula=formula, data=data).fit(disp=False)`
+
+7. **Generate Confusion Matrix**: Produces a confusion matrix for the logistic regression model’s predictions.
+
+`confusion_matrix = model.pred_table()`
+
+- **Confusion Matrix Layout**:
+
+```
+[[TN, FP],   # TN = True Negatives, FP = False Positives
+ [FN, TP]]   # FN = False Negatives, TP = True Positives
+```
+8. **Calculates the model’s accuracy from the confusion matrix**:
+
+- `TP`: True Positives (correctly predicted positives).
+- `TN`: True Negatives (correctly predicted negatives).
+- `T`: Total number of predictions.
+- **Accuracy Formula**: 
+
+$$
+\text{Accuracy} = \frac{\text{TP} + \text{TN}}{\text{Total Predictions}}
+$$
+
+9. **Update the Best Feature**: Compares the current feature’s accuracy with the best accuracy seen so far. If the current feature has a higher accuracy, update `best_feature` and `best_accuracy`.
+
+```
+if accuracy > best_accuracy:
+    best_feature = col
+    best_accuracy = accuracy
+``` 
+
+10. **Store Results in a DataFrame**: Summarizes the results into a pandas DataFrame with:
+
+- `best_feature`: The name of the feature with the highest accuracy.
+- `best_accuracy`: The corresponding accuracy score.
+
+```
+best_feature_df = pd.DataFrame({
+    "best_feature": [best_feature],
+    "best_accuracy": [best_accuracy]
+})
+```
+11. **Return the Results**: Returns the DataFrame so that the results can be used or displayed.
+
+`return best_feature_df`
+
+
+# Data Analysis
+
+```{python}
+# Import required modules
+import pandas as pd
+from statsmodels.formula.api import logit
+
+# Start coding!
+car = pd.read_csv("car_insurance.csv")
+
+# Exploring the data
+
+def explore(data, head_rows=5, group_by_col=None, cols_to_impute=None):
+    """
+    Explores the given DataFrame by displaying basic information, summary statistics, 
+    the first few rows, unique values, and imputes missing values with group means if specified.
+
+    Parameters:
+        data (pd.DataFrame): The DataFrame to explore.
+        head_rows (int): Number of rows to display for the head of the DataFrame. Default is 5.
+        group_by_col (str): Column name to group by for imputing missing values. Default is None.
+        cols_to_impute (list): List of column names to impute missing values. Default is None.
+    """
+    print("\n--- DataFrame Info ---\n")
+    data.info()
+    
+    print("\n--- Summary Statistics ---\n")
+    print(data.describe(include='all'))  # Include all data types in describe()
+    
+    print(f"\n--- First {head_rows} Rows ---\n")
+    print(data.head(head_rows))
+    
+    print("\n--- Unique Values ---\n")
+    for col in data.columns:
+        print(f"{col}: {data[col].unique()}")
+    
+    # Impute missing values if group_by_col and cols_to_impute are specified
+    if group_by_col and cols_to_impute:
+        print("\n--- Imputing Missing Values ---\n")
+        try:
+            group_means = data.groupby(group_by_col)[cols_to_impute].mean().to_dict()  # Group means as a dictionary
+            for col in cols_to_impute:
+                if col in data.columns:
+                    print(f"Imputing missing values in '{col}' based on group means of '{group_by_col}'")
+                    data[col] = data[col].fillna(data[group_by_col].map(group_means[col]))
+                else:
+                    print(f"Column '{col}' not found in the dataset.")
+        except Exception as e:
+            print(f"Error while imputing missing values: {e}")
+    
+    print("\n--- Any missing values again ? ---\n")
+    print(data.isna().sum())
+
+# Example usage
+# explore(your_data, group_by_col="outcome", cols_to_impute=["credit_score", "annual_mileage"])
+
+explore(car, group_by_col="outcome", cols_to_impute=["credit_score", "annual_mileage"])
+
+def best_logmodel(data, outcome_column='outcome', id_column='id'):
+    """
+    Identifies the single best feature for predicting the outcome column using logistic regression 
+    with statsmodels. Calculates accuracy directly from the confusion matrix.
+
+    Parameters:
+        data (pd.DataFrame): The dataset containing features and the outcome column.
+        outcome_column (str): The name of the target column.
+        id_column (str): The name of the column to exclude from analysis.
+
+    Returns:
+        pd.DataFrame: A DataFrame with the best feature and its accuracy score.
+    """
+    # Exclude ID and outcome columns from columns set
+    data1 = data.drop(columns=[id_column, outcome_column])
+    
+    best_feature = None
+    best_accuracy = 0
+
+    # Iterate through each columns
+    for col in data1.columns:
+        # Create formula for logistic regression
+        formula = f"{outcome_column} ~ {col}"
+        
+        # Fit logistic regression model on the entire dataset
+        model = logit(formula=formula, data=data).fit(disp=False)
+        
+        # Generate confusion matrix using pred_table()
+        confusion_matrix = model.pred_table()
+        
+        # Calculate accuracy from confusion matrix
+        TP = confusion_matrix[1, 1]
+        TN = confusion_matrix[0, 0]
+        T = confusion_matrix.sum()
+        accuracy = (TP + TN) / T
+
+        # Update the best feature if this one is better
+        if accuracy > best_accuracy:
+            best_feature = col
+            best_accuracy = accuracy
+
+    # Store results in a DataFrame
+    best_feature_df = pd.DataFrame({
+        "best_feature": [best_feature],
+        "best_accuracy": [best_accuracy]
+    })
+
+    return best_feature_df
+
+# Example usage
+# best_feature_df = best_logmodel(your_data)
+# print(best_feature_df)
+
+best_feature_df = best_logmodel(car)
+
+print(best_feature_df)
+```
+# Result/Findings
+
+- The analysis identified `driving_experience` (indicating the years the client has been driving) as the best predictor of whether a customer will file a claim, with an accuracy score of 77.7%. This indicates that the model correctly predicted claims and non-claims in approximately 78 out of 100 cases, making this feature a significant factor in claim prediction.
+
+# Recommendations
+
+None
+
+# Limitations
+
+None
+
+# Conclusion
+
+Our analysis identified `driving_experience` (years of driving) as the strongest predictor of claim submissions, achieving an accuracy score of 77.7%. This result highlights the importance of driving experience in assessing customer risk. The model correctly classified claims and non-claims in 78 out of 100 cases.
+
+Logistic regression was used to evaluate the predictive power of individual features, and accuracy was calculated using a confusion matrix. The prominence of driving experience suggests that more experienced drivers may exhibit different risk profiles, which could guide targeted policy offerings.
+
+We recommend incorporating this insight into your risk assessment models.
+
+# References
+
+1. For loop in Intermediate Python Course for Associate Data Scientist in Python Carrer Track in DataCamp Inc by Hugo Bowne-Henderson.
+
+2. Introduction to functions in Python in Intermediate Python Course for Associate Data Scientist in Python Carrer Track in DataCamp Inc by Hugo Bowne-Henderson.
+
+3. Introduction to Regression with statsmodels in Python in Intermediate Python Course for Associate Data Scientist in Python Carrer Track in DataCamp Inc by Maarten Van den Broeck.
+
+4. Exploratory Data Analysis in Python in Intermediate Python Course for Associate Data Scientist in Python Carrer Track in DataCamp Inc by Hugo Bowne-Henderson.
+
+5. Python For Data Analysis 3E (Online) by Wes Mckinney Click [here](https://wesmckinney.com/book/){target="_blank"} to preview.
