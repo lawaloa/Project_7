@@ -288,6 +288,7 @@ def explore(data, head_rows=5, group_by_col=None, cols_to_impute=None):
 # Example usage
 # explore(your_data, group_by_col="outcome", cols_to_impute=["credit_score", "annual_mileage"])
 
+
 explore(car, group_by_col="outcome", cols_to_impute=["credit_score", "annual_mileage"])
 
 def best_logmodel(data, outcome_column='outcome', id_column='id'):
