@@ -239,10 +239,10 @@ best_feature_df = pd.DataFrame({
 import pandas as pd
 from statsmodels.formula.api import logit
 
-# Start coding!
+# Import the car_insurance csv file and store as object 'car'
 car = pd.read_csv("car_insurance.csv")
 
-# Exploring the data
+# Exploring the DataFrame by creating the function 'explore'
 
 def explore(data, head_rows=5, group_by_col=None, cols_to_impute=None):
     """
@@ -288,8 +288,11 @@ def explore(data, head_rows=5, group_by_col=None, cols_to_impute=None):
 # Example usage
 # explore(your_data, group_by_col="outcome", cols_to_impute=["credit_score", "annual_mileage"])
 
+# Use 'explore' function to analyze and clean the car dataset by providing a detailed overview of its structure and content, and it also optionally imputes missing values.
 
 explore(car, group_by_col="outcome", cols_to_impute=["credit_score", "annual_mileage"])
+
+# Create a function, 'best_logmodel', to identify the single best feature in the dataset for predicting a binary outcome using logistic regression with the statsmodels
 
 def best_logmodel(data, outcome_column='outcome', id_column='id'):
     """
@@ -343,6 +346,8 @@ def best_logmodel(data, outcome_column='outcome', id_column='id'):
 # Example usage
 # best_feature_df = best_logmodel(your_data)
 # print(best_feature_df)
+
+# Use the function, 'best_logmodel', to identify the single best feature in the dataset for predicting a binary outcome using logistic regression with the statsmodels.
 
 best_feature_df = best_logmodel(car)
 
