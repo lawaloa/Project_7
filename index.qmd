@@ -1,6 +1,5 @@
 ---
-title: "Project 7: Modeling Car Insurance Claims Outcome"
-title-block-banner: "SKYBLUE2.jpeg"
+title: "Project 7 | Modeling Car Insurance Claims Outcome"
 author:
   - name:  "Lawal's Project"
     affiliation: "Associate Data Science Course in Python by DataCamp Inc"
@@ -73,16 +72,16 @@ Data: The primary data used for this analysis is the car_insurance.csv, which ca
 
 # Tools
 
-Jupyter lab
+This project was conducted using `JupyterLab`, a versatile interactive development environment that facilitates data analysis, visualization, and documentation in Python.
 
 # Methodology: Steps/Explanations
 
-## The necessary libraries was imported, which were `Pandas` and `logit` from `statsmodels.formula.api` {.unlisted .unnumbered}
+### The necessary libraries were imported, which include `Pandas` and `logit` from `statsmodels.formula.api` {.unlisted}
 
-## Reading in and exploring the dataset, including imputation of missing values {.unlisted .unnumbered}
+### Reading in and exploring the dataset, including the imputation of missing values {.unlisted}
 
 - The Original dataset was loaded, named `car`.
-- The first  function, `explore`, was designed to help analyze and clean a dataset by providing a detailed overview of its structure and content, and it also optionally imputes missing values. Here's a step-by-step explanation:
+- The first function, `explore`, was designed to help analyze and clean a dataset by providing a detailed overview of its structure and content, and it also optionally imputes missing values. Here's a step-by-step explanation:
 
 1. **Function creation and its arguments**: `data`, the DataFrame to analyze; `head_rows`, the number of rows to display from the start of the DataFrame (default: 5); `group_by_col`, the column used to group data for imputing missing values (default: None); `cols_to_impute`, the list of columns where missing values will be filled with the group mean (default: None).
 
@@ -156,7 +155,7 @@ print("\n--- Any missing values again ? ---\n")
 print(data.isna().sum())
 ```
 
-## Finding the best performing model, with the highest accuracy. {.unlisted .unnumbered}
+### Finding the best performing model, with the highest accuracy. {.unlisted}
 
 - The second function, `best_logmodel`, was designed to identify the single best feature in a dataset for predicting a binary outcome using logistic regression with the statsmodels library. Here's a detailed explanation:
 
